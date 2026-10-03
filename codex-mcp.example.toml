@@ -1,0 +1,11 @@
+# Merge into Codex config.toml. Replace ALL example paths; keep other settings.
+[mcp_servers.zomboid_server]
+command = 'C:\Python314\python.exe'
+args = [
+  'C:\PZBridge\server\tools\mcp_bridge.py',
+  '--connection-file', 'C:\PZBridge\connections\server.json',
+  '--java', 'C:\Program Files\Zulu\zulu-25\bin\java.exe',
+  '--javap', 'C:\Program Files\Zulu\zulu-25\bin\javap.exe',
+  '--cfr', 'C:\PZBridge\server\tools\cfr-0.152.jar',
+]
+tool_timeout_sec = 45

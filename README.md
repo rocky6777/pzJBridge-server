@@ -1,0 +1,46 @@
+# pzJBridge(0.2.0) dedicated-server tool
+
+Ready-to-use Windows distribution for the verified Project Zomboid **42.21 dedicated server**, requiring its Java 25 runtime. Includes the built agent, installer, launcher and optional read-only Codex MCP companion. It contains no Project Zomboid classes, game files, account credentials or saved worlds.
+
+Downloads: [server ZIP](https://github.com/rocky6777/pzJBridge-server/releases/latest/download/pzJBridge-server-0.2.0.zip) and [client ZIP](https://github.com/rocky6777/pzJBridge-server/releases/latest/download/pzJBridge-client-0.2.0.zip). The server ZIP and this repository also contain `client/pzJBridge-client-0.2.0.zip` for distribution to players. Extract the client ZIP and follow `ZomboidJBridgeClient/Contents/mods/ZomboidJBridgeClient/common/SETUP.md`; it contains the client JAR, installer, MCP tools and Workshop companion. Enabling the Lua companion alone cannot start the Java agent.
+
+## Install and start
+
+Download the ZIP from this repository's **Releases**, extract it to a stable folder, and stop your server normally before installing. Run these commands from the extracted folder, replacing the game directory if necessary:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-ServerAgent.ps1 -GameDirectory 'D:\Program Files (x86)\Steam\steamapps\common\Project Zomboid Dedicated Server'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Start-Server.ps1 -GameDirectory 'D:\Program Files (x86)\Steam\steamapps\common\Project Zomboid Dedicated Server' -ServerName 'servertest'
+```
+
+The installer verifies the supported login-class fingerprint and bundled agent checksum, backs up `ProjectZomboid64.json`, copies the JAR to `%LOCALAPPDATA%\ZomboidJBridgeServer`, and adds a server startup option while preserving other JVM options. It refuses unsupported game profiles. `-WhatIf` previews installation; `-Uninstall` removes the bridge startup option and retains backups and the stable JAR.
+
+**Use the supplied Start-Server.ps1.** Stock `StartServer64.bat` constructs its own JVM command and ignores `ProjectZomboid64.json`. The supplied launcher reads the modified JSON, inherits its memory/Windows JVM settings, uses the bundled runtime, and keeps the console available. Optional `-CacheDirectory 'C:\PZServerData'` selects a separate cache/world location; `-DryRun` prints the invocation without launching. This launcher does not change existing server profiles, passwords or worlds. First-run account prompts are handled by the game. Stop with the console `quit` command.
+
+The server requires client agent 0.2.0 and any matching server-required Java extensions before admitting players. A missing agent is rejected with the stock client's generic **Access denied** message; the server log records the specific bridge reason. This is compatibility checking, not anti-cheat. No economy or MMO gameplay is included.
+
+## Codex MCP setup for mod development
+
+MCP is optional for players/server operation. **Both agent-side MCP enablement and Codex settings are required for Codex inspection.** Install Python 3.9+ and JDK 25 (including `java` and `javap`). Re-run installation with MCP enabled:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-ServerAgent.ps1 -GameDirectory 'D:\Program Files (x86)\Steam\steamapps\common\Project Zomboid Dedicated Server' -EnableMcp -McpFile 'C:\PZBridge\connections\server.json'
+```
+
+Start the server using the supplied launcher. Merge `codex-mcp.example.toml` into `%USERPROFILE%\.codex\config.toml` (or a trusted project's `.codex/config.toml`), replacing every example path with the extracted package, Python/JDK and connection-file paths on your machine. Keep existing Codex settings and other MCP entries. Do not duplicate an existing `zomboid_server` table. Restart Codex after the change. This follows [official OpenAI MCP configuration](https://learn.chatgpt.com/docs/extend/mcp).
+
+Ask Codex to call `zomboid_server.agent_status`, then inspect `zombie.network.packets.connection.LoginPacket` using `read_game_class` with `format=java` or `format=bytecode`. The bundled CFR decompiler reconstructs Java from the original installed game bytes; it cannot recover exact original source. Nothing in this package evaluates game methods or writes gameplay state through MCP.
+
+The connection file is created only while the agent runs and contains a private bearer token. Never publish it. MCP binds only to `127.0.0.1`; do not expose it to the internet. For a remote server, run the companion on that host through your remote development setup. The installer does not edit Codex configuration or install Python/JDK automatically.
+
+## Updates, uninstall and scope
+
+Stop the server, extract the updated distribution and rerun the installer. Steam updates can replace the launcher JSON; rerun installation afterwards. Verify hook compatibility before supporting another game build. To uninstall:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-ServerAgent.ps1 -GameDirectory 'D:\Program Files (x86)\Steam\steamapps\common\Project Zomboid Dedicated Server' -Uninstall
+```
+
+After uninstalling, use the game's normal server launcher. Linux/macOS users must configure their launcher manually with `-javaagent:/stable/path/zomboidjbridge-0.2.0.jar=side=server;gameJar=/path/to/server/java/projectzomboid.jar`.
+
+The agent embeds Byte Buddy 1.17.8 and its Apache 2.0 license/notice. CFR 0.152 is distributed with its MIT license under `licenses/`. Bridge distribution files are maintained by rocky6777; this is an unofficial Project Zomboid tool. See `BUILD_INFO.json` and `SHA256SUMS.txt` for the original agent build revision and binary checksums. Installer tests cover backup, repeat installation, option preservation, MCP, uninstall, and unsupported-profile refusal; the launcher is verified in dry-run mode. Agent multiplayer acceptance/rejection was tested against local 42.21 client/server installations.
