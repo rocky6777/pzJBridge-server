@@ -1,0 +1,70 @@
+# Java extensions
+
+Implement `io.github.zomboidjbridge.api.BridgeMod` and place its fully qualified class name in `META-INF/services/io.github.zomboidjbridge.api.BridgeMod`. Starting with bridge 0.3.0, the loader discovers declared JARs inside downloaded Steam Workshop items, merges them with the optional manual `mods` directory, validates unique IDs/versions/providers, then configures extensions in ID order. Restart the game to load changes.
+
+```java
+public final class MyMod implements BridgeMod {
+    public String id() { return "author.my-mod"; }
+    public String version() { return "1.0.0"; }
+    public boolean requiresClient() { return true; }
+    public AgentBuilder configure(AgentBuilder builder, Side side) {
+        // Add narrowly scoped .type(...).transform(...) rules here.
+        return builder;
+    }
+}
+```
+
+IDs use lowercase letters, digits, dot, underscore and hyphen, up to 64 characters. Versions use letters, digits, dot, underscore, plus and hyphen, up to 64 characters. `requiresClient()` means that a server loading this extension rejects clients that do not declare this exact ID/version. Server-only extensions should leave it false. The same JAR may configure different hooks using `Side.CLIENT` and `Side.SERVER`.
+
+Use the API JAR and the pinned Byte Buddy dependency as **compile-only** dependencies. Do not bundle copies of the bridge API or Byte Buddy into extension JARs. Dependency JARs may be placed beside extensions; the loader keeps its URLClassLoader for the process lifetime. Avoid referencing game classes from premain or loading them while configuring transforms; use class/method names and Byte Buddy descriptions instead. Game classes should remain unloaded until hooks are installed.
+
+Build the example:
+
+```powershell
+.\gradlew.bat :example-mod:jar
+```
+
+For manual loading, copy `examples/example-mod/build/libs/example-mod-1.0.0.jar` into your chosen extensions directory and append `;mods=C:/path/to/extensions` to the agent option on both sides. The example prints its side and requires a matching client extension without changing gameplay.
+
+## Publish an extension through Workshop
+
+Include the following under your Workshop item's `Contents` folder:
+
+```text
+mods/YourMod/
+  common/
+    mod.info
+    pzjbridge.properties
+    java/
+      your-extension.jar
+      optional-library.jar
+  42.21/
+    mod.info
+    media/lua/client/YourLuaCompanion.lua   (optional)
+```
+
+The marker `common/pzjbridge.properties` explicitly opts this mod into Java loading:
+
+```properties
+bridgeVersion=0.3.0
+sides=client,server
+jars=java/your-extension.jar,java/optional-library.jar
+```
+
+Use forward-slash paths relative to the declaration folder. Each listed file must exist inside that folder, including after resolving links. Arbitrary JARs elsewhere in the Workshop item are ignored. Use `sides=server` for a server-only extension, and leave `requiresClient()` false in that case. `sides` defaults to both roles. `bridgeVersion` must exactly match the installed bridge; unsupported versions fail startup with the declaration path. Unknown settings, escaping paths, duplicate provider names/IDs and missing JARs also fail startup rather than silently omitting required code.
+
+For this verified game profile, `42.21/pzjbridge.properties` overrides the common declaration **entirely**, including side selection; they are not merged. Other version folders are ignored. Use a common declaration for shared client/server code or put the complete declaration and JARs under `42.21/` for profile-specific code. No game classes or bridge/Byte Buddy copies should be included in your extension.
+
+Clients find `steamapps/workshop/content/108600` from the game JAR location and read Steam's `appworkshop_108600.acf` installed-item index. Stray folders and authoring drafts are not loaded. This is an offline installed-cache lookup performed before Steam initializes; it does not query live subscriptions or download items. Let Steam finish subscription/update/unsubscription processing before launching. Java discovery uses the downloaded installed-item list, not the game's enabled Lua-mod list: disabling a Lua companion does not unload its Java extension. Unsubscribe and let Steam remove the installed entry, then restart; use `;workshop=false` to disable all automatic Workshop extension loading.
+
+Players install the bridge once, subscribe to your item, wait for Steam to finish downloading, and restart. They do not copy your JAR manually. Bridge upgrades still require updating the startup agent once; version 0.3.0 must be installed on both client and server because login admission requires an exact agent version.
+
+Servers use the selected profile's `WorkshopItems` list. The supplied `Start-Server.ps1` reads that list and passes comma-separated IDs as `workshopItems=...` before the JVM starts. The server's internal `steamapps/workshop/content/108600` cache is preferred, falling back to the Steam library cache. Only selected IDs are considered. Missing downloads fail startup: pre-download the configured items using the game's normal server launcher/SteamCMD, stop that process, then start with the bridge. Downloads made after premain are not loaded during that run. With no selected list, automatic server discovery loads nothing; manual `mods` remains available.
+
+Custom layouts can use `;workshopDir=/path/to/workshop/content/108600`. The Windows installers expose `-WorkshopDirectory` and `-DisableWorkshop`. Clients still need the adjacent Steam installed-item index. For another server launcher, pass `;workshopItems=111,222` explicitly. Multiple declarations of the same real JAR are deduplicated, while conflicting provider names/extension IDs fail startup.
+
+The example marker and mod.info are in `examples/example-mod/workshop/common/`. Copy those with the built example JAR under `common/java/` to author a test Workshop item.
+
+The current API exposes transform configuration and side selection. It does not yet provide stable game events, a post-login messaging bus, dependency/version ranges, sandboxing, hot reload, or a scheduler for game-thread operations. The login gate is added after extension configuration. Extensions are trusted JVM code; do not replace the agent builder's listener/ignore policy or hook the bridge's own login methods.
+
+Use MCP to inspect original game classes and generate a narrowly scoped patch. CFR reconstructs Java from bytecode; check bytecode with `format=bytecode` when decompiled control flow is ambiguous. Keep game files and reconstructed game code local rather than shipping them inside extension projects.
