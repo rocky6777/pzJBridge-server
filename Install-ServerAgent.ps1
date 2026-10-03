@@ -46,8 +46,8 @@ if (-not $Uninstall) {
     if ($gameHash -ne '5ea931e8d251517d6566eaac9a220d3d722959951581e6cc6bb7a104fe4519d9') {
         throw 'This game build does not match the verified 42.21 agent profile. No launcher settings were changed.'
     }
-    $bundledJar = Join-Path $PSScriptRoot 'java\zomboidjbridge-0.3.0.jar'
-    $checksumFile = Join-Path $PSScriptRoot 'java\zomboidjbridge-0.3.0.jar.sha256'
+    $bundledJar = Join-Path $PSScriptRoot 'java\zomboidjbridge-0.4.0.jar'
+    $checksumFile = Join-Path $PSScriptRoot 'java\zomboidjbridge-0.4.0.jar.sha256'
     if (-not (Test-Path -LiteralPath $bundledJar) -or -not (Test-Path -LiteralPath $checksumFile)) {
         throw 'The packaged agent or checksum is missing. Use the generated Workshop package, not the source template.'
     }
@@ -60,7 +60,7 @@ if (-not $Uninstall) {
         throw 'Bundled agent checksum mismatch. No launcher settings were changed.'
     }
     $stableDirectory = [IO.Path]::GetFullPath($InstallDirectory)
-    $stableJar = Join-Path $stableDirectory 'zomboidjbridge-0.3.0.jar'
+    $stableJar = Join-Path $stableDirectory 'zomboidjbridge-0.4.0.jar'
     if (@($stableJar, $gameJarPath, $McpFile) | Where-Object { $_ -and $_.Contains(';') }) {
         throw 'Agent option paths cannot contain semicolons.'
     }
