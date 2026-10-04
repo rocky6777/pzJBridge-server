@@ -1,5 +1,9 @@
 # pzJBridge binary releases
 
+## 0.6.0
+
+Add read-only detailed/sampled MCP profiling, frame/stutter history, JVM/GC metrics and explicit mod relationship/override reports. Configurable 60 FPS target controls cooperating mods' cosmetic budgets; simulation and multiplayer rules remain unchanged. Include updated API, SDK documentation and client installer ZIP. This is a prerelease for live performance measurement, with no measured FPS guarantee and no engine chunk/render reductions yet. Detailed profiling adds overhead. Gameplay module source/binaries remain separate from the public bridge distribution.
+
 ## 0.5.2
 
 Optional game-thread extension dispatch supports independent Zombie Types and Levels modules. Update the shared agent/API, server installer and embedded client ZIP. Gameplay modules remain separate installations; private Levels source and binaries remain excluded from the public bridge package.

@@ -12,6 +12,13 @@ import urllib.request
 from urllib.parse import urlsplit
 
 TOOLS = [
+    *[{"name": name, "description": description,
+       "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False}}
+      for name, description in (
+          ("performance_status", "Read detached frame cadence, sampled/full callback and native-phase timings, JVM/GC metrics, cosmetic budgets and evidence-based recommendations. Enable detailed profiling in Options > Bridge > Performance. Inclusive timings overlap; GPU time is not measured."),
+          ("mod_plan", "Read declared dependencies, shared contracts and native method overlaps. Flags override risks; does not prove compatibility with undeclared or external Lua/Java patches."))],
+    {"name": "performance_history", "description": "Read up to 60 retained one-second performance samples and 32 stutters, correlated with camera movement and player travel. Use afterSequence for incremental reads; generation changes on a new session.",
+     "inputSchema": {"type": "object", "properties": {"afterSequence": {"type": "integer", "minimum": 0}, "limit": {"type": "integer", "minimum": 1, "maximum": 60}}, "additionalProperties": False}},
     {"name": "read_game_log", "description": "Read the last part of the explicitly configured game log, optionally filtering errors/warnings. Captures Lua and native game errors outside Java mod hooks. No filename argument or arbitrary file access.",
      "inputSchema": {"type": "object", "properties": {"level": {"type": "string", "enum": ["all", "errors", "warnings"]},
          "lines": {"type": "integer", "minimum": 1, "maximum": 200}}, "additionalProperties": False}},
@@ -74,6 +81,22 @@ class Bridge:
         return body if binary else json.loads(body)
 
     def call(self, name, args):
+        if name in ("performance_status", "mod_plan"):
+            if args: raise ValueError("Unexpected arguments")
+            return json.dumps(self.fetch("/performance" if name == "performance_status" else "/mod-plan"), indent=2)
+        if name == "performance_history":
+            if set(args) - {"afterSequence", "limit"}: raise ValueError("Unexpected arguments")
+            after, limit = args.get("afterSequence", 0), args.get("limit", 60)
+            if type(after) is not int or after < 0 or type(limit) is not int or not 1 <= limit <= 60:
+                raise ValueError("Invalid performance cursor or limit")
+            result = self.fetch("/performance/history")
+            retained = result.get("samples", [])
+            entries = [e for e in retained if e["sequence"] > after][:limit]
+            cursor = entries[-1]["sequence"] if entries else max(after, result.get("latestSequence", 0))
+            return json.dumps({"generation": result.get("generation", 0), "entries": entries,
+                "nextSequence": cursor, "latestSequence": result.get("latestSequence", 0),
+                "oldestRetainedSequence": retained[0]["sequence"] if retained else None,
+                "stutters": result.get("stutters", [])}, indent=2)
         if name == "read_game_log":
             if set(args) - {"level", "lines"}: raise ValueError("Unexpected arguments")
             level, lines = args.get("level", "errors"), args.get("lines", 100)
@@ -204,7 +227,7 @@ def dispatch(message, bridge):
         requested = params.get("protocolVersion")
         version = requested if requested in ("2024-11-05", "2025-03-26", "2025-06-18") else "2025-06-18"
         result = {"protocolVersion": version, "capabilities": {"tools": {}},
-                  "serverInfo": {"name": "zomboidjbridge", "version": "0.5.2"}}
+                  "serverInfo": {"name": "zomboidjbridge", "version": "0.6.0"}}
     elif method == "ping": result = {}
     elif method == "tools/list": result = {"tools": TOOLS}
     elif method == "tools/call":
