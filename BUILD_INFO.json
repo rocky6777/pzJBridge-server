@@ -3,7 +3,7 @@
   "gameProfile": "42.21",
   "javaRelease": 25,
   "performanceBoostVersion": "0.1.0",
-  "agentSourceCommit": "26bb0a4bc38a0f9f1b018a78a174b020b8f0fc65",
-  "distributionSourceCommit": "26bb0a4bc38a0f9f1b018a78a174b020b8f0fc65",
+  "agentSourceCommit": "5cc5d361ffe25f90a74a1967a30c29f03cc963e0",
+  "distributionSourceCommit": "5cc5d361ffe25f90a74a1967a30c29f03cc963e0",
   "agentSha256": "4fe7ac57313a15bac6835b55e320b5cc0bb319f505a434f5ea0a5dbac37466c1"
 }
