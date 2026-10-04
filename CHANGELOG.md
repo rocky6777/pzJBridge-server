@@ -1,5 +1,11 @@
 # pzJBridge binary releases
 
+## 0.4.2
+
+Fix a launch failure caused by connection files left behind after an interrupted client/server shutdown. MCP endpoints hold an exclusive sidecar file lock, record process identity and safely recover stale legacy loopback files. Live or unknown owners are preserved. Shutdown removes only the connection file this process published. Optional MCP failures now warn and allow game instrumentation to finish; required game/login hooks still fail closed. Both client and server must use bridge 0.4.2. Levels gameplay remains 0.2.2.
+
+Regression checks cover stale-file recovery, active owners, PID reuse, duplicate endpoints, owned-file cleanup, forced JVM termination/relaunch and game startup when MCP is unavailable.
+
 ## 0.4.1
 
 Correct stale menu version labels. Join rejection now lists all missing or incompatible Java components and explains manual agent installation, Workshop extension downloads and restarting. A version-specific client ZIP link is included. The stock missing-mod translation preserves the explanation even on a vanilla client. Both sides must update to 0.4.1. Private gameplay extensions remain excluded.
