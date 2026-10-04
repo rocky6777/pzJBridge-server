@@ -1,5 +1,11 @@
 # pzJBridge binary releases
 
+## 0.6.3
+
+- Performance Boost 0.1.1 adds a configurable cosmetic ground-shadow pass reduction while preserving maximum camera view and simulation. FPS gains require a matched test.
+- Detailed profiling separates world/UI draw-buffer submission, state/world updates, shadow/rain/snow rendering and client maintenance. MCP retains detached render command counts and skipped shadow passes.
+- Keep normal sampled probes when adding detailed hooks to the same class; disabled native mods immediately remove all optimizer budgets.
+
 ## 0.6.2
 
 - Add lifecycle-gated, cached optimization contributions for optional Performance Boost 0.1.0. Native game-loop pacing call sites use a cached policy without changing saved display settings; disabled Workshop mods immediately clear their shared budgets.
