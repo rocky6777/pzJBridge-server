@@ -1,6 +1,6 @@
 # Performance analytics and cooperative optimization
 
-Bridge 0.6.3 adds a configurable 60 FPS target and diagnostics for B42.21. It does not guarantee 60 FPS or alter the engine's chunk radius, combat, collision, physics, XP or multiplayer rules. Levels 0.4.3 and Zombie Types 0.1.3 cooperate with cosmetic budgets. Gameplay still works when adaptive quality or analytics are disabled.
+Bridge 0.6.4 adds a configurable 60 FPS target and diagnostics for B42.21. It does not guarantee 60 FPS or alter the engine's chunk radius, combat, collision, physics, XP or multiplayer rules. Levels 0.4.3 and Zombie Types 0.1.3 cooperate with cosmetic budgets. Gameplay still works when adaptive quality or analytics are disabled.
 
 ## Player controls
 
@@ -53,10 +53,12 @@ Only after repeatable evidence should engine reductions be added. Candidate idea
 
 The [example extension](../examples/example-mod/src/main/java/example/ExampleMod.java) demonstrates `PerformanceProfiler.section`, cosmetic hints and a shared immutable summary. Invoke its `cosmetic.summary` callback from an engine-thread UI hook; the example does not attach gameplay hooks on its own. Keep critical simulation independent of cosmetic hints. Current login metadata permits at most 32 Java extensions; this does not limit ordinary Lua-only Workshop mods.
 
-## Optional Performance Boost 0.1.1
+## Optional Performance Boost 0.1.2
 
 [Performance Boost](../mods/pzjbridge-performance/README.md) is a separate native-enabled Java extension; its one JAR selects client or dedicated-server policies. Client defaults apply a temporary 60 FPS upper cap, reduce water/puddle shaders and use tier 1 for cooperating cosmetic work. The cap substitutes only game-loop call sites, preserving saved display settings and lower native limits. SP hot-reload polling is limited to four checks per second; dedicated-server polling to two. File events remain queued, and native debug mode bypasses this limit. Server diagnostic intervals can be multiplied for cooperating extensions, with detailed profiling retaining the usual frequency.
 
 These settings cut specific rendering/maintenance work. They do not skip zombie AI, world simulation, combat, XP or packet processing. Disable the native companion mod to restore its original methods and remove its cached shared budget. MCP performance status reports both `nativeFpsCap` and `effectiveFpsCap`; `extension_status` for `pzjbridge.optimizer` exposes watcher counters and policy. Changes are polled on the engine thread once per second. Compare warmed matching routes before claiming a measured FPS gain.
 
-Performance Boost 0.1.1 optionally omits the native cosmetic ground-shadow pass for characters, vehicles and corpses. It preserves maximum zoom and world simulation. `renderWork` exposes skipped passes and detailed-only queued draw-command counts; nested renderer timings are inclusive and cannot be added together. The earlier Fast Move test was heavier than the walking baseline and recorded 50–141 ms stalls; it does not establish a gain. Compare the same fast route and crowd with shadow reduction off/on before attributing an improvement.
+Performance Boost 0.1.2 optionally omits the native cosmetic ground-shadow pass for characters, vehicles and corpses. It preserves maximum zoom and world simulation. `renderWork` exposes skipped passes and detailed-only queued draw-command counts; nested renderer timings are inclusive and cannot be added together. The earlier Fast Move test was heavier than the walking baseline and recorded 50–141 ms stalls; it does not establish a gain. Compare the same fast route and crowd with shadow reduction off/on before attributing an improvement.
+
+Bridge 0.6.4 fixes cumulative-transform duplication so ordinary render and network timers run once per invocation. Performance Boost 0.1.2 covers the current `FBORenderShadows` path as well as the legacy cell renderer: it suppresses shadow submissions before pooled allocation, then omits their render queue while preserving native cleanup. `skippedShadowSubmissions` counts suppressed requests, not visible shadows. `uploadBufferBytes` and `uploadBufferCount` describe native allocation capacity; they do not measure GPU memory pressure. Detailed RingBuffer begin/render/next timings identify upload/flush phases. The 0.6.3 off/on capture had zero skipped shadows and duplicated cadence events, so it cannot support an FPS improvement claim.

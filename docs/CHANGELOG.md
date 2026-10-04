@@ -1,5 +1,11 @@
 # pzJBridge binary releases
 
+## 0.6.4
+
+- Fix duplicate native render/network timers and optimizer frame callbacks caused by cumulative Byte Buddy transformations. Each native method now receives its ordinary timer once.
+- Performance Boost 0.1.2 suppresses B42.21 FBO ground-shadow submissions before pooled allocation and omits their cosmetic render queue. Pool cleanup remains native; disabling the mod restores behavior. The 0.1.1 legacy shadow hook did not reduce work in the tested FBO session.
+- Add detailed upload-buffer phase timings and detached shadow-submission/buffer-capacity counters. Preserve 250% maximum zoom, gameplay and packet processing. Native client/server fixtures pass; matched live FPS validation remains pending.
+
 ## 0.6.3
 
 - Performance Boost 0.1.1 adds a configurable cosmetic ground-shadow pass reduction while preserving maximum camera view and simulation. FPS gains require a matched test.
