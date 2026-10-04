@@ -1,6 +1,27 @@
 # Java extensions
 
-Implement `io.github.zomboidjbridge.api.BridgeMod` and place its fully qualified class name in `META-INF/services/io.github.zomboidjbridge.api.BridgeMod`. Starting with bridge 0.4.2, the loader discovers declared JARs inside downloaded Steam Workshop items, merges them with the optional manual `mods` directory, validates unique IDs/versions/providers, then configures extensions in ID order. Restart the game to load changes.
+## Shared Bridge options
+
+Override `displayName()` and `settings()` on `BridgeMod` to join the client **Bridge** tab and sandbox **Bridge** page:
+
+```java
+public String displayName() { return "My Mod"; }
+public List<BridgeSetting> settings() {
+    return List.of(
+        BridgeSetting.toggle("Debug", "Debug mode", "Extra diagnostics", BridgeSetting.Scope.CLIENT, false),
+        new BridgeSetting("KillXP", "Kill XP", "Server/world rule", BridgeSetting.Scope.WORLD,
+            BridgeSetting.Type.INTEGER, 25, 0, 1000));
+}
+```
+
+Settings support BOOLEAN, INTEGER and NUMBER values with validated finite bounds. Keys are unique per scope; declare at most 64 settings per extension. The engine-free API rejects collisions in generated native sandbox names. Existing extensions without settings remain compatible and display a group with no local options.
+
+Read local preferences with `BridgeSettings.clientValue(id, key)` / `clientToggle`. Read world rules with `worldValue` after `OnGameStart` / `OnServerStarted`; earlier reads return schema defaults. Example native key: `Bridge.author_my_mod_KillXP`, saved under `Bridge` in SandboxVars. The Bridge UI loads per-computer preferences from `Zomboid/pzjbridge/client-options.properties`. Changing world options in client Options is deliberately unavailable. Clients receive the server's native sandbox rules on joining.
+
+Guard expensive diagnostic payload creation with `BridgeSettings.debugEnabled(id)` before creating maps or formatting log strings. A boolean key named `Debug` enables that mod's debug mode; Bridge's global Debug enables all mods. Latest diagnostic snapshots and hook errors remain available, while verbose event/sample histories are disabled by default. `agent_status.settings` exposes schemas and effective values through the read-only MCP bridge.
+
+
+Implement `io.github.zomboidjbridge.api.BridgeMod` and place its fully qualified class name in `META-INF/services/io.github.zomboidjbridge.api.BridgeMod`. Starting with bridge 0.3.0, the loader discovers declared JARs inside downloaded Steam Workshop items, merges them with the optional manual `mods` directory, validates unique IDs/versions/providers, then configures extensions in ID order. Restart the game to load changes.
 
 ```java
 public final class MyMod implements BridgeMod {
@@ -46,7 +67,7 @@ mods/YourMod/
 The marker `common/pzjbridge.properties` explicitly opts this mod into Java loading:
 
 ```properties
-bridgeVersion=0.4.2
+bridgeVersion=0.5.0
 sides=client,server
 jars=java/your-extension.jar,java/optional-library.jar
 ```
@@ -57,7 +78,7 @@ For this verified game profile, `42.21/pzjbridge.properties` overrides the commo
 
 Clients find `steamapps/workshop/content/108600` from the game JAR location and read Steam's `appworkshop_108600.acf` installed-item index. Stray folders and authoring drafts are not loaded. This is an offline installed-cache lookup performed before Steam initializes; it does not query live subscriptions or download items. Let Steam finish subscription/update/unsubscription processing before launching. Java discovery uses the downloaded installed-item list, not the game's enabled Lua-mod list: disabling a Lua companion does not unload its Java extension. Unsubscribe and let Steam remove the installed entry, then restart; use `;workshop=false` to disable all automatic Workshop extension loading.
 
-Players install the bridge once, subscribe to your item, wait for Steam to finish downloading, and restart. They do not copy your JAR manually. Bridge upgrades still require updating the startup agent once; version 0.4.2 must be installed on both client and server because login admission requires an exact agent version.
+Players install the bridge once, subscribe to your item, wait for Steam to finish downloading, and restart. They do not copy your JAR manually. Bridge upgrades still require updating the startup agent once; version 0.5.0 must be installed on both client and server because login admission requires an exact agent version.
 
 Servers use the selected profile's `WorkshopItems` list. The supplied `Start-Server.ps1` reads that list and passes comma-separated IDs as `workshopItems=...` before the JVM starts. The server's internal `steamapps/workshop/content/108600` cache is preferred, falling back to the Steam library cache. Only selected IDs are considered. Missing downloads fail startup: pre-download the configured items using the game's normal server launcher/SteamCMD, stop that process, then start with the bridge. Downloads made after premain are not loaded during that run. With no selected list, automatic server discovery loads nothing; manual `mods` remains available.
 
@@ -67,7 +88,7 @@ The example marker and mod.info are in `examples/example-mod/workshop/common/`. 
 
 The current API exposes transform configuration and side selection. It does not yet provide stable game events, a post-login messaging bus, dependency/version ranges, sandboxing, hot reload, or a scheduler for game-thread operations. The login gate is added after extension configuration. Extensions are trusted JVM code; do not replace the agent builder's listener/ignore policy or hook the bridge's own login methods.
 
-In 0.4.2, use `ExtensionHooks.register(id(), handler)` during `configure` to register a process-lifetime callback. Inlined advice should call `ExtensionHooks.call(id, event, arguments...)` through the parent-agent API, rather than referencing helper classes visible only to the extension's child loader. The callback runs synchronously on the calling thread, so defer game-dependent initialization until a suitable game callback and keep handlers short. Failures return null and are logged once per event; recipe gates should explicitly require `Boolean.TRUE` to fail closed. This is a dispatcher, not a game-thread scheduler or network API. The private [Levels project](../mods/pzjbridge-levels/README.md) demonstrates the pattern with actual B42.21 hooks.
+In 0.3.1 and later, use `ExtensionHooks.register(id(), handler)` during `configure` to register a process-lifetime callback. Inlined advice should call `ExtensionHooks.call(id, event, arguments...)` through the parent-agent API, rather than referencing helper classes visible only to the extension's child loader. The callback runs synchronously on the calling thread, so defer game-dependent initialization until a suitable game callback and keep handlers short. Failures return null and are logged once per event; recipe gates should explicitly require `Boolean.TRUE` to fail closed. This is a dispatcher, not a game-thread scheduler or network API. The private [Levels project](../mods/pzjbridge-levels/README.md) demonstrates the pattern with actual B42.21 hooks.
 
 Use MCP to inspect original game classes and generate a narrowly scoped patch. CFR reconstructs Java from bytecode; check bytecode with `format=bytecode` when decompiled control flow is ambiguous. Keep game files and reconstructed game code local rather than shipping them inside extension projects.
 

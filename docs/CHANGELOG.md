@@ -1,5 +1,11 @@
 # pzJBridge binary releases
 
+## 0.5.0
+
+Add the shared Bridge Options tab and native Bridge sandbox page for extension settings. Expose a declarative settings API and active settings through read-only MCP status. Client preferences save locally; sandbox rules persist with the world and are server controlled. Debug is off by default, keeping current diagnostics/error reporting while skipping verbose histories. Client and server startup agents must both update. Private gameplay extensions are excluded from this distribution.
+
+Validated against installed 42.21 classes, native sandbox serialization and Lua compilation, settings persistence/validation, packaged startup and installer checks. Final page layout and live multiplayer options behavior await user verification.
+
 ## 0.4.2 launcher follow-up — Steam server identity
 
 Launch the dedicated server with SteamAppId/SteamGameId 108600, scoped to the child process and restored afterwards. A live server advertising the dedicated tool identity 380870 answered A2S queries but client P2P connections timed out. After restarting with 108600, Steam authentication succeeded and the player confirmed joining works. Agent 0.4.2 and Levels 0.2.2 are unchanged; Workshop uploads remain on hold.
