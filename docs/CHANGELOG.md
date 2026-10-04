@@ -1,5 +1,9 @@
 # pzJBridge binary releases
 
+## 0.4.2 launcher follow-up — Steam server identity
+
+Launch the dedicated server with SteamAppId/SteamGameId 108600, scoped to the child process and restored afterwards. A live server advertising the dedicated tool identity 380870 answered A2S queries but client P2P connections timed out. After restarting with 108600, Steam authentication succeeded and the player confirmed joining works. Agent 0.4.2 and Levels 0.2.2 are unchanged; Workshop uploads remain on hold.
+
 ## 0.4.2
 
 Fix a launch failure caused by connection files left behind after an interrupted client/server shutdown. MCP endpoints hold an exclusive sidecar file lock, record process identity and safely recover stale legacy loopback files. Live or unknown owners are preserved. Shutdown removes only the connection file this process published. Optional MCP failures now warn and allow game instrumentation to finish; required game/login hooks still fail closed. Both client and server must use bridge 0.4.2. Levels gameplay remains 0.2.2.

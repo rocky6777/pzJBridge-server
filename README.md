@@ -17,6 +17,8 @@ The installer verifies the supported login-class fingerprint and bundled agent c
 
 **Use the supplied Start-Server.ps1.** Stock `StartServer64.bat` constructs its own JVM command and ignores `ProjectZomboid64.json`. The supplied launcher reads the modified JSON, inherits its memory/Windows JVM settings, uses the bundled runtime, and keeps the console available. Optional `-CacheDirectory 'C:\PZServerData'` selects a separate cache/world location; `-DryRun` prints the invocation without launching. This launcher does not change existing server profiles, passwords or worlds. First-run account prompts are handled by the game. Stop with the console `quit` command.
 
+The launcher sets `SteamAppId` and `SteamGameId` to the game's `108600` for the server process, then restores the calling shell's values. The dedicated tool's `380870` identity can answer server-info queries while Steam client connections time out at Getting server info. Installed Steam files are left untouched.
+
 The server requires client agent 0.4.2 and any matching server-required Java extensions before admitting players. A missing agent or incompatible Java mod is rejected before admission with a detailed explanation, all missing/wrong-version components, manual client installer steps and a direct client ZIP URL. Vanilla clients use the game's translated missing-mod wrapper around that explanation. Workshop subscription alone does not install the startup agent. This is compatibility checking, not anti-cheat. No economy or MMO gameplay is included.
 
 ## Automatic Workshop Java extensions

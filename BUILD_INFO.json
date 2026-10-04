@@ -2,7 +2,7 @@
   "bridgeVersion": "0.4.2",
   "gameProfile": "42.21",
   "javaRelease": 25,
-  "agentSourceCommit": "8293b674e182934af6cc374c9201ae7816d77fed",
-  "distributionSourceCommit": "8293b674e182934af6cc374c9201ae7816d77fed",
+  "agentSourceCommit": "3f092d061e22e96c63fe3715666a9aeda83b003d",
+  "distributionSourceCommit": "3f092d061e22e96c63fe3715666a9aeda83b003d",
   "agentSha256": "c2189f436a46064b92393401bc46ac4c5d82f8ed7269aeefd8e7e2fd763fb93b"
 }

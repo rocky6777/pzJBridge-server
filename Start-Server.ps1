@@ -51,9 +51,19 @@ if ($DryRun) {
     return
 }
 Push-Location -LiteralPath $gamePath
+$previousSteamAppId = $env:SteamAppId
+$previousSteamGameId = $env:SteamGameId
 try {
+    # Steam distributes the dedicated tool as 380870, but client connections use
+    # the game's 108600 identity. Scope this override to the server process.
+    $env:SteamAppId = '108600'
+    $env:SteamGameId = '108600'
     # Keep an interactive console for the server's first-run account setup and quit command.
     & $java @launchArgs
     $serverExit = $LASTEXITCODE
-} finally { Pop-Location }
+} finally {
+    $env:SteamAppId = $previousSteamAppId
+    $env:SteamGameId = $previousSteamGameId
+    Pop-Location
+}
 exit $serverExit
