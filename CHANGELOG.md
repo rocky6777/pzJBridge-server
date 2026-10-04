@@ -1,5 +1,11 @@
 # pzJBridge binary releases
 
+## 0.6.2
+
+- Add lifecycle-gated, cached optimization contributions for optional Performance Boost 0.1.0. Native game-loop pacing call sites use a cached policy without changing saved display settings; disabled Workshop mods immediately clear their shared budgets.
+- One Performance Boost JAR covers client/SP pacing and water/puddle rendering plus SP/server hot-reload polling and cooperating diagnostic budgets. Gameplay and packet scheduling are preserved.
+- Matching Levels 0.4.3 and Zombie Types 0.1.3 metadata and optional nonessential diagnostic cooperation.
+
 ## 0.6.1
 
 - Retain up to 64 timestamped slow calls in detailed performance mode for MCP diagnostics. Slow native phases (16 ms), mod callbacks (5 ms), and packet handlers (16 ms) retain completion time, duration and thread ID; no packet payloads are collected.
