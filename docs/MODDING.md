@@ -1,6 +1,6 @@
 # Java extensions
 
-Bridge 0.6.0 adds optional dependency/hook declarations, named profiler sections and explicit per-frame shared work. See [performance diagnostics and the example](PERFORMANCE.md) for contracts, limits and measurement practices. Configuring extensions now follows dependency order, then stable ID order.
+Bridge 0.6.1 adds optional dependency/hook declarations, named profiler sections and explicit per-frame shared work. See [performance diagnostics and the example](PERFORMANCE.md) for contracts, limits and measurement practices. Configuring extensions now follows dependency order, then stable ID order.
 
 ## Shared Bridge options
 
@@ -69,7 +69,7 @@ mods/YourMod/
 The marker `common/pzjbridge.properties` explicitly opts this mod into Java loading:
 
 ```properties
-bridgeVersion=0.6.0
+bridgeVersion=0.6.1
 sides=client,server
 jars=java/your-extension.jar,java/optional-library.jar
 ```
@@ -80,7 +80,7 @@ For this verified game profile, `42.21/pzjbridge.properties` overrides the commo
 
 Clients find `steamapps/workshop/content/108600` from the game JAR location and read Steam's `appworkshop_108600.acf` installed-item index. Stray folders and authoring drafts are not loaded. This is an offline installed-cache lookup performed before Steam initializes; it does not query live subscriptions or download items. Let Steam finish subscription/update/unsubscription processing before launching. Java discovery finds downloaded JARs; activation follows the game's resolved enabled-mod list. Disable the companion in the save/server mod selection to stop its Java hooks. Use `;workshop=false` to disable automatic discovery; manual development JARs still follow their native mod IDs.
 
-Players install the bridge once, subscribe to your item, wait for Steam to finish downloading, and restart. They do not copy your JAR manually. Bridge upgrades still require updating the startup agent once; version 0.6.0 must be installed on both client and server because login admission requires an exact agent version.
+Players install the bridge once, subscribe to your item, wait for Steam to finish downloading, and restart. They do not copy your JAR manually. Bridge upgrades still require updating the startup agent once; version 0.6.1 must be installed on both client and server because login admission requires an exact agent version.
 
 Servers use the selected profile's `WorkshopItems` list. The supplied `Start-Server.ps1` reads that list and passes comma-separated IDs as `workshopItems=...` before the JVM starts. The server's internal `steamapps/workshop/content/108600` cache is preferred, falling back to the Steam library cache. Only selected IDs are considered. Missing downloads fail startup: pre-download the configured items using the game's normal server launcher/SteamCMD, stop that process, then start with the bridge. Downloads made after premain are not loaded during that run. With no selected list, automatic server discovery loads nothing; manual `mods` remains available.
 
@@ -100,7 +100,7 @@ To expose read-only runtime diagnostics, publish a snapshot from a normal game c
 
 Emit discrete debugging information with `ExtensionHooks.publishDebugEvent(id, "craft.completed", Map.of("recipe", recipeName, "level", level))`. Event kinds accept 1–64 letters, digits, dots, underscores or hyphens. Each copied payload has a conservative 24 KiB JSON budget; lists/maps have at most 128 elements, nesting at most five levels and strings at most 2,048 characters. The bridge retains the last 128 events and 16 snapshots (sampled at most once per second). Publish only useful transitions, rather than every render/update callback. MCP `debug_events` and `diagnostic_history` read these buffers by sequence without evaluating extension code. First callback failures automatically emit `hook.error`. The example mod demonstrates registration and startup diagnostics.
 
-## Enabled Workshop mods (bridge 0.6.0)
+## Enabled Workshop mods (bridge 0.6.1)
 
 Discovery makes a JAR available; B42’s resolved enabled-mod list controls whether its Java transforms run. The selected Workshop mod.info ID is inferred from the JAR declaration. For manual development JARs implement `BridgeMod.workshopModId()` with the exact native mod.info ID (case sensitive); its default is the extension ID. Levels declares `PzJBridgeLevels`. Server `Mods=` and save-specific/client server selections control activation, including required dependencies.
 
@@ -108,6 +108,6 @@ Discovery makes a JAR available; B42’s resolved enabled-mod list controls whet
 
 A multiplayer client advertises available JARs during the initial login, before B42 supplies the server’s mod list; gameplay activates only when that list is resolved. The server requires only enabled extensions. Install/update startup JARs with the game closed and restart after Steam changes JAR contents.
 
-## Optional extension integration (0.6.0)
+## Optional extension integration (0.6.1)
 
 Use `ExtensionHooks.isEnabled("other.mod")` to check whether an optional peer is currently enabled. `ExtensionHooks.callIfEnabled("other.mod", "profile", actor)` returns null when the peer is absent or disabled, and otherwise forwards the event/arguments to its handler with normal error reporting. A null result can also mean that a handler returns no value; do not treat it as proof of failure. Call only on normal game callbacks, never MCP/HTTP threads. Share events through the parent bridge API instead of linking against another extension's classloader. Zombie Types and optional Levels demonstrate this pattern; see `docs/ZOMBIE_MOD_SPLIT.md`.

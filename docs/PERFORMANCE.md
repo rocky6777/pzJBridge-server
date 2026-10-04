@@ -1,6 +1,6 @@
 # Performance analytics and cooperative optimization
 
-Bridge 0.6.0 adds a configurable 60 FPS target and diagnostics for B42.21. It does not guarantee 60 FPS or alter the engine's chunk radius, combat, collision, physics, XP or multiplayer rules. Levels 0.4.1 and Zombie Types 0.1.1 cooperate with cosmetic budgets. Gameplay still works when adaptive quality or analytics are disabled.
+Bridge 0.6.1 adds a configurable 60 FPS target and diagnostics for B42.21. It does not guarantee 60 FPS or alter the engine's chunk radius, combat, collision, physics, XP or multiplayer rules. Levels 0.4.2 and Zombie Types 0.1.2 cooperate with cosmetic budgets. Gameplay still works when adaptive quality or analytics are disabled.
 
 ## Player controls
 
@@ -18,6 +18,10 @@ Sandbox **Bridge > Performance** contains server analytics and detailed server p
 The existing authenticated loopback connection also serves `performance_status`, `performance_history` and `mod_plan`. Updating the bundled MCP Python companion and reconnecting/restarting Codex refreshes the tool list. `agent_status` also contains the current performance report and mod plan, so older tool discovery can still inspect them.
 
 `performance_status` returns the latest report. History also retains its bounded timing breakdowns, so a paused game does not erase the work measured during the test. Server reports have no client FPS target/budget; their phase cadence is labelled explicitly.
+
+Detailed mode additionally retains up to 64 timestamped slow calls in `slowCalls` on status/history. Native phases and client/server packet handlers qualify at 16 ms; mod callbacks qualify at 5 ms. Packet records contain the native packet enum name, never payloads or account data. Records retain completion time, inclusive duration and thread ID until replaced or a new world/session resets profiling. They survive the shorter aggregate timing sample ring. Nested records overlap and must not be added together. GC collection-time counters are not stop-the-world pause durations.
+
+Extra scene update/render, UI, collision-state, sound, voice, Steam-loop and lighting probes run only in detailed mode. These subdivide broad native phases without changing their behavior. A normal sampled-mode/off comparison remains necessary to measure profiler overhead before claiming a performance improvement.
 
 Reports contain:
 

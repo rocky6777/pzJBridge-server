@@ -1,5 +1,11 @@
 # pzJBridge binary releases
 
+## 0.6.1
+
+- Retain up to 64 timestamped slow calls in detailed performance mode for MCP diagnostics. Slow native phases (16 ms), mod callbacks (5 ms), and packet handlers (16 ms) retain completion time, duration and thread ID; no packet payloads are collected.
+- Add detailed-only native scene update/render, UI, collision-state, sound, voice, Steam and lighting probes; name slow client/server packet handlers by their native packet enum. No gameplay scheduling or packet delivery changes.
+- Refresh matching Workshop metadata and footer for Levels 0.4.2 and Zombie Types 0.1.2.
+
 ## 0.6.0
 
 Add read-only detailed/sampled MCP profiling, frame/stutter history, JVM/GC metrics and explicit mod relationship/override reports. Configurable 60 FPS target controls cooperating mods' cosmetic budgets; simulation and multiplayer rules remain unchanged. Include updated API, SDK documentation and client installer ZIP. This is a prerelease for live performance measurement, with no measured FPS guarantee and no engine chunk/render reductions yet. Detailed profiling adds overhead. Gameplay module source/binaries remain separate from the public bridge distribution.

@@ -96,7 +96,7 @@ class Bridge:
             return json.dumps({"generation": result.get("generation", 0), "entries": entries,
                 "nextSequence": cursor, "latestSequence": result.get("latestSequence", 0),
                 "oldestRetainedSequence": retained[0]["sequence"] if retained else None,
-                "stutters": result.get("stutters", [])}, indent=2)
+                "stutters": result.get("stutters", []), "slowCalls": result.get("slowCalls", [])}, indent=2)
         if name == "read_game_log":
             if set(args) - {"level", "lines"}: raise ValueError("Unexpected arguments")
             level, lines = args.get("level", "errors"), args.get("lines", 100)
@@ -227,7 +227,7 @@ def dispatch(message, bridge):
         requested = params.get("protocolVersion")
         version = requested if requested in ("2024-11-05", "2025-03-26", "2025-06-18") else "2025-06-18"
         result = {"protocolVersion": version, "capabilities": {"tools": {}},
-                  "serverInfo": {"name": "zomboidjbridge", "version": "0.6.0"}}
+                  "serverInfo": {"name": "zomboidjbridge", "version": "0.6.1"}}
     elif method == "ping": result = {}
     elif method == "tools/list": result = {"tools": TOOLS}
     elif method == "tools/call":
