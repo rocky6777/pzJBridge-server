@@ -33,6 +33,8 @@ These are **inclusive wall times**: nested callbacks overlap and must not be add
 
 ## Reproducible play test
 
+For multiplayer, use the same agent JAR on client and server and profile both endpoints. Additional probes time `GameClient.update` and `GameClient/GameServer.mainLoopDealWithNetData`. The server probe covers that named ZomboidNetData dispatch path, not every modern packet implementation or the entire server loop. It measures processing wall time, not ping, packet loss or throughput. Enable server detailed profiling through the world's Performance sandbox setting; client profiling remains a local option. Do not infer network latency from callback durations.
+
 Use the same save, route, zoom, resolution, native cap and enabled mods for comparisons. Begin with adaptive cosmetics disabled to isolate measurements. Warm the world first, then perform roughly 30 seconds each of stationary play, repeated camera panning, running/driving over the same route and moving near a crowd. Record sampled mode, repeat briefly with full profiling to attribute hot callbacks, then compare analytics off. Re-enable adaptive cosmetics and repeat with each setting recorded. MCP can read both processes while you control the game; it cannot change live settings or execute arbitrary game code.
 
 Only after repeatable evidence should engine reductions be added. Candidate ideas reviewed in [ZBBetterFPS](https://github.com/zed-0xff/ZBBetterFPS) include rendering distance, state changes, batching and background work. This release uses our own probes and cooperative budgets; no BetterFPS source has been copied.
