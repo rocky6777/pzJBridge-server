@@ -1,5 +1,9 @@
 # pzJBridge binary releases
 
+## 0.5.1
+
+Make extension Java hooks follow B42’s enabled save/server mods. Disabling restores native methods and removes the extension from the server’s required client list. Workshop mod.info binds installed JARs to native enablement; manual development JARs expose workshopModId. MCP reports activeMods alongside discovered binaries. The companion menu shows green ● Connected when Java integration is present. Client and server must both update. Automated native enable/disable cycles, method restoration, MCP, Lua/settings and package checks passed; live save/server toggle testing remains for the player. Workshop publishing stays on hold.
+
 ## 0.5.0
 
 Add the shared Bridge Options tab and native Bridge sandbox page for extension settings. Expose a declarative settings API and active settings through read-only MCP status. Client preferences save locally; sandbox rules persist with the world and are server controlled. Debug is off by default, keeping current diagnostics/error reporting while skipping verbose histories. Client and server startup agents must both update. Private gameplay extensions are excluded from this distribution.
