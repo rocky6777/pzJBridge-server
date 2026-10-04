@@ -1,5 +1,9 @@
 # pzJBridge binary releases
 
+## 0.5.2
+
+Optional game-thread extension dispatch supports independent Zombie Types and Levels modules. Update the shared agent/API, server installer and embedded client ZIP. Gameplay modules remain separate installations; private Levels source and binaries remain excluded from the public bridge package.
+
 ## 0.5.1
 
 Make extension Java hooks follow B42’s enabled save/server mods. Disabling restores native methods and removes the extension from the server’s required client list. Workshop mod.info binds installed JARs to native enablement; manual development JARs expose workshopModId. MCP reports activeMods alongside discovered binaries. The companion menu shows green ● Connected when Java integration is present. Client and server must both update. Automated native enable/disable cycles, method restoration, MCP, Lua/settings and package checks passed; live save/server toggle testing remains for the player. Workshop publishing stays on hold.
