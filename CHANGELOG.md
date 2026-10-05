@@ -1,5 +1,12 @@
 # pzJBridge binary releases
 
+## 0.7.0 / Performance Boost 0.2.0
+
+- Require an explicit native debug launch for bridge logging, MCP endpoint creation, profiler reporting and detailed engine transformations. Saved debug preferences alone cannot enable them. Normal launches retain gameplay, extension lifecycle, frame-scoped shared work and cached optimization policies.
+- Add read-only engine_diagnostics: renderer batches/state runs/vertices, sampled pending client queues, anonymous server transport/connected counts and reported ping, Lua callback registrations and MCP request totals. Native zombie update/state/postupdate, pathfinding and selected Lua event timings subdivide the previous broad phases; HTTP only reads detached data.
+- Add optional decorative rain/snow particle render suppression, covering RainParticle's override and SnowParticle's inherited base method. Fog, climate updates, sound and native drawer cleanup remain active. Disabled mod restoration is tested; no FPS gain claimed yet.
+- Levels 0.4.4 and Zombie Types 0.1.4 follow debug-only diagnostics/logging. Startup uses Byte Buddy safe injection selection to avoid its Java 25 Unsafe initialization warning; no global stdout/stderr redirection or vanilla logging suppression.
+
 ## 0.6.4
 
 - Fix duplicate native render/network timers and optimizer frame callbacks caused by cumulative Byte Buddy transformations. Each native method now receives its ordinary timer once.

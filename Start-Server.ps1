@@ -43,6 +43,7 @@ for ($index = 0; $index -lt $vmArgs.Count; $index++) {
 if ($config.windows -and $config.windows.'10') { $vmArgs += @($config.windows.'10'.vmArgs) }
 $classPath = $config.classpath -join [IO.Path]::PathSeparator
 $launchArgs = $vmArgs + @('-cp', $classPath, $config.mainClass.Replace('/', '.'), '-servername', $ServerName)
+if ($PSBoundParameters['Debug']) { $launchArgs += '-debug' }
 if ($CacheDirectory) { $launchArgs += '-cachedir=' + [IO.Path]::GetFullPath($CacheDirectory) }
 if ($DryRun) {
     # Only the constructed invocation is shown; no process or world is created.

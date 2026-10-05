@@ -15,6 +15,7 @@ TOOLS = [
     *[{"name": name, "description": description,
        "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False}}
       for name, description in (
+          ("engine_diagnostics", "Read debug-only detached renderer batch/state-run/vertex totals, client pending network queues, Lua listener registration counts and MCP request totals. Requires a -debug launch; no gameplay objects, packet payloads or tokens are returned."),
           ("performance_status", "Read detached frame cadence, sampled/full callback and native-phase timings, JVM/GC metrics, cosmetic budgets and evidence-based recommendations. Enable detailed profiling in Options > Bridge > Performance. Inclusive timings overlap; GPU time is not measured."),
           ("mod_plan", "Read declared dependencies, shared contracts and native method overlaps. Flags override risks; does not prove compatibility with undeclared or external Lua/Java patches."))],
     {"name": "performance_history", "description": "Read up to 60 retained one-second performance samples and 32 stutters, correlated with camera movement and player travel. Use afterSequence for incremental reads; generation changes on a new session.",
@@ -62,7 +63,10 @@ class Bridge:
         self.game_log = Path(game_log).resolve() if game_log else None
 
     def fetch(self, route, binary=False):
-        config = json.loads(self.connection_file.read_text(encoding="utf-8"))
+        try:
+            config = json.loads(self.connection_file.read_text(encoding="utf-8"))
+        except FileNotFoundError as missing:
+            raise ValueError("No running debug bridge connection. Launch Zomboid with -debug, or the server launcher with -Debug, then retry.") from missing
         url = urlsplit(config["url"])
         if (url.scheme != "http" or url.hostname != "127.0.0.1" or not url.port
                 or url.username or url.password or url.path or url.query or url.fragment):
@@ -81,6 +85,9 @@ class Bridge:
         return body if binary else json.loads(body)
 
     def call(self, name, args):
+        if name == "engine_diagnostics":
+            if args: raise ValueError("Unexpected arguments")
+            return json.dumps(self.fetch("/diagnostics/engine"), indent=2)
         if name in ("performance_status", "mod_plan"):
             if args: raise ValueError("Unexpected arguments")
             return json.dumps(self.fetch("/performance" if name == "performance_status" else "/mod-plan"), indent=2)
@@ -227,7 +234,7 @@ def dispatch(message, bridge):
         requested = params.get("protocolVersion")
         version = requested if requested in ("2024-11-05", "2025-03-26", "2025-06-18") else "2025-06-18"
         result = {"protocolVersion": version, "capabilities": {"tools": {}},
-                  "serverInfo": {"name": "zomboidjbridge", "version": "0.6.4"}}
+                  "serverInfo": {"name": "zomboidjbridge", "version": "0.7.0"}}
     elif method == "ping": result = {}
     elif method == "tools/list": result = {"tools": TOOLS}
     elif method == "tools/call":
