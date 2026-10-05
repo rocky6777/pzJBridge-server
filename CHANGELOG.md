@@ -1,5 +1,11 @@
 # pzJBridge binary releases
 
+## 0.7.3 / Performance Boost 0.2.2 / Levels 0.4.7
+
+- Add an optional client multiplayer zombie-list accelerator: reuse a packet-local identity index for native ArrayList checks in synchronization packets with at least 64 zombies, with lists between 128 and 8,192 entries. Verify every cached positive against the live list; use native searches for misses, mutations, custom equality/list implementations and small workloads. Preserve the existing object Set, packet order, AI and simulation. Reuse bounded buffers and clear actor references on normal/exceptional packet exit. Disabling the native mod restores its original call sites.
+- Add debug-only zombie receive/parse/AI/spawn and chunk load/create/buffer-decode phase timings. Detailed profiling alone starts a bounded JFR stream for top-level GC pause events of at least 1 ms; it closes when detailed collection is disabled. Aggregate collector time remains distinct from pause duration. No JFR stack traces or allocations are collected, and no diagnostic stream starts in normal gameplay.
+- Levels 0.4.7 updates its Bridge footer. Update exact Workshop declarations, installers and distribution versions. This targets avoidable list-search work; actual FPS impact and dominant spike attribution require matched live comparison.
+
 ## 0.7.2 / Levels 0.4.6
 
 - Sample the busy-poll render-ready probe once per 4,096 invocations per thread, including detailed mode. Unsampled calls avoid clock reads, series lookup, shared counters and recording locks. Reports identify selected-call counts and do not extrapolate them into total polling cost; rare stalls may be missed.
