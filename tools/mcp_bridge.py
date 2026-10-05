@@ -234,7 +234,7 @@ def dispatch(message, bridge):
         requested = params.get("protocolVersion")
         version = requested if requested in ("2024-11-05", "2025-03-26", "2025-06-18") else "2025-06-18"
         result = {"protocolVersion": version, "capabilities": {"tools": {}},
-                  "serverInfo": {"name": "zomboidjbridge", "version": "0.7.1"}}
+                  "serverInfo": {"name": "zomboidjbridge", "version": "0.7.2"}}
     elif method == "ping": result = {}
     elif method == "tools/list": result = {"tools": TOOLS}
     elif method == "tools/call":

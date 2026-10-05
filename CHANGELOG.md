@@ -1,5 +1,13 @@
 # pzJBridge binary releases
 
+## 0.7.2 / Levels 0.4.6
+
+- Sample the busy-poll render-ready probe once per 4,096 invocations per thread, including detailed mode. Unsampled calls avoid clock reads, series lookup, shared counters and recording locks. Reports identify selected-call counts and do not extrapolate them into total polling cost; rare stalls may be missed.
+- Separate animal update packet parsing/writing, animal loading/world insertion, synchronization requests, chunk save work, decompression/buffer growth and chunk construction. Report aggregate successful decompression input/output bytes without retaining buffers or payloads. Additional hooks require debug launch and detailed profiling.
+- Preserve gameplay and optimizer policies. Normal launches remain silent with no detailed hooks/MCP reporter. Levels 0.4.6 updates its embedded Bridge footer; Performance Boost 0.2.1 and Zombie Types 0.1.4 binaries are unchanged. Workshop discovery declarations follow Bridge 0.7.2.
+- Detect Steam/native Windows `-debug` even when Java command properties are absent, using one startup-only native command-line read under the existing native-access permission. Verify positive and negative launch arguments.
+- Profiling preparation for matched play tests; no new engine speedup or FPS gain claimed.
+
 ## 0.7.1 / Performance Boost 0.2.1 / Levels 0.4.5
 
 - Fix a native profiler capacity blind spot: retain 128 engine series and report dropped engine/packet series. Add detailed bounded per-packet timing and payload-size aggregates, render-state waits, chunk/decompression and FBO preparation/tree phases. All collection remains debug-launch-only.
