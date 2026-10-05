@@ -1,5 +1,12 @@
 # pzJBridge binary releases
 
+## 0.7.1 / Performance Boost 0.2.1 / Levels 0.4.5
+
+- Fix a native profiler capacity blind spot: retain 128 engine series and report dropped engine/packet series. Add detailed bounded per-packet timing and payload-size aggregates, render-state waits, chunk/decompression and FBO preparation/tree phases. All collection remains debug-launch-only.
+- Extend optional precipitation reduction to native ground rain splashes, preserving climate, wetness, fog, sound and fish splashes. Disabled-mod restoration is checked against both installed B42 JARs; no new FPS gain is claimed.
+- Reuse empty callback argument arrays, avoid unchanged zombie speed writes, and prune noncontributing heatmap epicentres with exact output regression coverage. Add detailed Levels profile/sync sections for investigating isolated callback spikes.
+- Include empty Bridge animation/action-group folders to prevent native Workshop folder-scan errors. Update installers, branding and binary distribution references. Zombie Types remains 0.1.4.
+
 ## 0.7.0 / Performance Boost 0.2.0
 
 - Require an explicit native debug launch for bridge logging, MCP endpoint creation, profiler reporting and detailed engine transformations. Saved debug preferences alone cannot enable them. Normal launches retain gameplay, extension lifecycle, frame-scoped shared work and cached optimization policies.
